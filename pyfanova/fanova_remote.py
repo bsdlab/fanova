@@ -47,7 +47,7 @@ class FanovaRemote(object):
     def send(self, data):
         assert self._conn is not None
         logging.debug("> " + str(data))
-        self._conn.sendall(data + "\n")
+        self._conn.sendall( (data+"\n").encode())
 
     def receive(self):
         assert self._conn is not None
