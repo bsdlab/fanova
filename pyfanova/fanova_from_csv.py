@@ -70,15 +70,7 @@ class FanovaFromCSV(Fanova):
         fh.close()
 
     def _write_param_file(self):
-        #src = 'params.pcs'
-        #dst = os.path.join(self._scenario_dir, "param-file.txt")
-        #copyfile(src, dst)
         fh = open(os.path.join(self._scenario_dir, "param-file.txt"), "w")
-        #lines = ["reg_model {l1,l2} [l1]","nbands [2, 10] [10]i"]
-
-        #for line in lines:
-        #    param_string =  line + "\n"
-        #    fh.write(param_string)
 
         for key, value in self._paramDescription.iteritems():
             bounds = map(str,value[0])
@@ -94,22 +86,11 @@ class FanovaFromCSV(Fanova):
             param_string = ' '.join([key,bounds,init_val])+sufix + "\n"
             fh.write(param_string)
 
-        #for param_name in X.columns:
-        #    param_string =  line + "\n"
-        #    fh.write(param_string)
-        #for i in range(0, self._num_of_params):
-
-        #    param_string = "X" + str(i) + " " + str(self._bounds[i]) + " " + "[" + str(self._defaults[i]) + "]\n"
-        #    logging.debug(param_string)
-        #    fh.write(param_string)
-
         fh.close()
 
     def _write_paramstrings_file(self, params):
 
         fh = open(os.path.join(self._scenario_dir, "paramstrings.txt"), "w")
-        #print(params)
-        #print(params.columns)
         for row in params.itertuples():
             line = str(row[0]) + ': '
             names = row._fields[1:]
@@ -120,32 +101,10 @@ class FanovaFromCSV(Fanova):
             print(line)
             line = line + '\n'
 
-        #for i in range(0, params.shape[0]):
-        #    line = str(i) + ": "
-        #    for j in range(0, params.shape[1]):
-        #        line = line + "X" + str(j) + "='" + str(params[i][j]) + "', "
-            #remove the last comma and whitespace from the string again
-        #    line = line[:-2]
-        #    line = line + '\n'
-
             fh.write(line)
         fh.close()
 
     def _read_csv_file(self, filename):
-        """
-        fh = open(filename, "r")
-        reader = csv.reader(fh)
-
-        #Count how many data points are in the csv file
-        number_of_points = 0
-        for line in reader:
-            number_of_points += 1
-
-        fh.seek(0)
-        #Count the dimension of the the data points
-        line = fh.readline()
-        s = line.split(',')
-        """
         X = pd.read_csv(filename)
         y = X[X.columns[-1]]
         X = X[X.columns[0:-1]]
@@ -154,9 +113,6 @@ class FanovaFromCSV(Fanova):
 
         logging.debug("number of parameters: " + str(self._num_of_params))
         self._paramDescription = dict()
-        self._bounds = []
-        self._defaults = []
-        self._dtype = []
         for idx, dtype in enumerate(X.dtypes):
             cX = X[X.columns[idx]]
             if dtype == np.float64 or dtype == np.int64:
@@ -165,31 +121,4 @@ class FanovaFromCSV(Fanova):
                 cBounds = cX.unique()
             self._paramDescription[X.columns[idx]] = [cBounds, cBounds[0], dtype]
 
-
-            #self._bounds.append(cBounds)
-            #self._defaults.append(cBounds[0])
-            #self._dtypes = dtype
-
-        #print(number_of_points)
-        #print(self._num_of_params)
-        #X = np.zeros([number_of_points, self._num_of_params])
-        #y = np.zeros([number_of_points])
-
-        #fh.seek(0)
-        #rownum = 0
-        #for line in reader:
-        #    for param in range(0, self._num_of_params):
-        #        X[rownum][param] = line[param]
-        #    y[rownum] = line[-1]
-        #    rownum += 1
-
-        #fh.close()
-
-        #self._bounds = []
-        #self._defaults = []
-        #for i in range(0, self._num_of_params):
-            #Take min and max value as bounds for smac parameter file
-        #    self._bounds.append([np.min(X[:, i]), np.max(X[:, i])])
-            #Set min value as default value for smac parameter file
-        #    self._defaults.append(np.min(X[:, i]))
         return X, y
