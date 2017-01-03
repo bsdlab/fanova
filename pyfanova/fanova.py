@@ -6,6 +6,7 @@ import glob
 
 from subprocess import Popen
 from pkg_resources import resource_filename
+from resultparser import Resultparser
 
 from pyfanova.fanova_remote import FanovaRemote
 #from pyfanova.config_space import ConfigSpace
@@ -354,6 +355,65 @@ class Fanova(object):
         #the process terminated without ever instantiating a connection...something went wrong
         return False
 
+    def unormalize_value(self, parameter, value):
+        assert value <= 1 and value >= 0
+
+        self._remote.send_command(["unormalize_value", str(parameter), str(value)])
+        value = self._remote.receive()
+        if value != "\n":
+
+            return float(value)
+        else:
+            logging.error("Parameter not found")
+            raise ValueError("Parameter not found")
+
+        
+    def normalize_value(self,param_name,value):
+        
+        """
+        Normalize values  to the range [0,1] w.r.t to the upper and lower 
+            bound of the paramter
+        
+        input:
+            param_name: the name of the parameter
+            value: the value to normalize
+            
+        returns:
+            the normalized value
+            
+        """
+        self._remote.send_command(["unormalize_value", str(param_name), str(1)])
+        upper_bound = float(self._remote.receive())
+        self._remote.send_command(["unormalize_value", str(param_name), str(0)])
+        lower_bound = float(self._remote.receive())
+        
+        return (float(value)-lower_bound)/(upper_bound - lower_bound)
+
+    def get_test_values_for_param(self, param_name):
+        """
+        Get the values for which a parameter was evaluated in the smac
+        run.
+        
+        input:
+            param_name: the name of the parameter
+        
+        returns:
+            A list of values for which the parameter was evaluated
+        """
+        
+        result_parser = Resultparser(self._smac_output)
+        run_configs = result_parser.parse_runConfigs()
+        
+        values = []
+        for ii in range(0,len(run_configs)):   
+            run = run_configs[ii]
+            if run[param_name] is None:
+                raise ValueError("Couldn't find parameter {0} in config!".format(param_name))
+            else:
+                values.append(run[param_name])
+                
+        return values
+        
     def _fanova_classpath(self):
         classpath = [fname for fname in os.listdir(self._fanova_lib_folder) if fname.endswith(".jar")]
         classpath = [os.path.join(self._fanova_lib_folder, fname) for fname in classpath]
