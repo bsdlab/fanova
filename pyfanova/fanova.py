@@ -45,7 +45,7 @@ class Fanova(object):
 
         """
             Starts the Fanova from the scenario directory and opens a TCP connection to communicate with Java
-            
+
             Arguments:
               smac_output (str): Path to the state_run directory created by SMAC
               num_trees (int): Number of trees to create the Random Forest
@@ -54,7 +54,7 @@ class Fanova(object):
               improvement_over [DEFAULT, QUANTILE, NOTHING]: Compute improvements with respect to (this setting)
               quantile_to_compare (float): Quantile to compare to (if using QUANTILE --improvements-over)
         """
-        
+
         self._remote = FanovaRemote()
 
         self.check_output_dir(smac_output)
@@ -82,7 +82,7 @@ class Fanova(object):
             elif len(glob.glob(os.path.join(smac_output,"param-file.txt"))) == 1:
                 pcs_file = glob.glob(os.path.join(smac_output,"param-file.txt"))[0]
             else:
-                print "Error: Couldn't find a parameter configuration space file. Make sure that in the SMAC output directory is a valid file with name *.pcs, params.txt or param-file.txt"
+                print("Error: Couldn't find a parameter configuration space file. Make sure that in the SMAC output directory is a valid file with name *.pcs, params.txt or param-file.txt")
                 return
             self._config_space = ConfigSpace(pcs_file)
 
@@ -115,15 +115,15 @@ class Fanova(object):
 
     def check_output_dir(self, path):
         #if len(glob.glob(os.path.join(p,"*.pcs"))) == 0 or glob.glob(os.path.join(p,"*.pcs"))
-        pass 
+        pass
 
     def get_marginal(self, param):
         """
             Returns the marginal of param
-            
+
             Arguments:
               param (str): Parameter name
-          
+
             Returns:
               double: marginal
         """
@@ -147,11 +147,11 @@ class Fanova(object):
     def get_pairwise_marginal(self, param1, param2):
         """
             Returns the pairwise marginal between param1 and param2
-            
+
             Arguments:
               param1 (str): Parameter name of param1
               param2 (str): Parameter name of param2
-          
+
             Returns:
               double: marginal
         """
@@ -178,11 +178,11 @@ class Fanova(object):
     def get_marginal_for_value(self, param, value):
         """
             Returns the marginal of param for a specific value
-            
+
             Arguments:
               param (str): Parameter name
               value (double): Value in the interval [0, 1] (Fanova maps it internally to the actual bounds)
-          
+
             Returns:
               double: marginal
         """
@@ -192,15 +192,15 @@ class Fanova(object):
     def get_categorical_marginal_for_value(self, param, value):
         """
             Returns the categorical marginal for a specific value
-            
+
             Arguments:
               param (str): Parameter name
               value (int): 0-indexed categorical value
-          
+
             Returns:
               double: marginal
         """
-        
+
         size = self._config_space.get_categorical_size(param)
         if(value >= size):
             print("Categorical value %d is out of bounds [%d, %d] for parameter %s" %(value, 0, size, param))
@@ -209,7 +209,7 @@ class Fanova(object):
             return self._get_marginal_for_value(param, value)
 
     def _get_marginal_for_value(self, param, value):
-        
+
         dim = self._convert_param2dim(param)
 
         self._remote.send_command(["get_marginal_for_value", str(dim), str(value)])
@@ -236,7 +236,7 @@ class Fanova(object):
     def get_config_space(self):
         """
             Returns the configuration space that was used to build the Random Forest
-            
+
             Returns:
               ConfigSpace
         """
@@ -245,7 +245,7 @@ class Fanova(object):
     def get_all_pairwise_marginals(self):
         """
             Returns the all pairwise marginal
-            
+
             Returns:
               list: pairwise_marginals
         """
@@ -262,10 +262,10 @@ class Fanova(object):
     def get_most_important_pairwise_marginals(self, n=10):
         """
             Returns the n most important pairwise marginals
-            
+
             Arguments:
               n (int): The number of pairwise marginals that will be returned
-          
+
             Returns:
               list: pairwise_marginal
         """
@@ -278,11 +278,11 @@ class Fanova(object):
     def print_all_marginals(self, max_num=30, pairwise=True):
         """
             Prints and returns the all marginal
-            
+
             Arguments:
               max_num (int): Maximum number of marginals that will be returned
               pairwise (bool): Considers pairwise marginals or not
-          
+
             Returns:
               list: (marginal, name)
         """
@@ -336,7 +336,7 @@ class Fanova(object):
             logging.debug(" ".join(cmds))
             if logging.getLogger().level <= logging.DEBUG:
                 self._process = Popen(cmds, stdout=sys.stdout, stderr=sys.stdout)
-            else:   
+            else:
                 self._process = Popen(cmds, stdout=fnull, stderr=sys.stdout)#stdout=fnull, stderr=fnull)
 
     def _start_connection(self):
@@ -422,7 +422,7 @@ class Fanova(object):
             classpath.append(os.path.abspath(self._fanova_class_folder))
         logging.debug(classpath)
         return classpath
-    
+
     def unormalize_value(self, parameter, value):
         assert value <= 1 and value >= 0
 
