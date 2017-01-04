@@ -1,0 +1,12 @@
+# categorical
+#condition {C1,C2,all} [all]
+#condition {all} [all]
+#metricName {1st_derivative} [1st_derivative]
+#metricName {mean, 1st_derivative} [mean]
+
+# continuous
+f_0          [1.0, 46] [10.0]
+delta_f      [0.3, 4.5] [2.0]
+#t_1          [-200, -50] [-150]
+delta_t      [400, 1800] [450]
+#force_window [2,10] [5]

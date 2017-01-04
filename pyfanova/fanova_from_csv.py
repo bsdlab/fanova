@@ -72,7 +72,8 @@ class FanovaFromCSV(Fanova):
     def _write_param_file(self):
         fh = open(os.path.join(self._scenario_dir, "param-file.txt"), "w")
 
-        for key, value in self._paramDescription.iteritems():
+
+        for key, value in sorted(self._paramDescription.iteritems()):
             bounds = map(str,value[0])
             if value[-1] == np.int64:
                 sufix = 'i'
@@ -91,6 +92,12 @@ class FanovaFromCSV(Fanova):
     def _write_paramstrings_file(self, params):
 
         fh = open(os.path.join(self._scenario_dir, "paramstrings.txt"), "w")
+
+        # make sure that parameters are written in the same order as in param-file
+        keys = self._paramDescription.keys()
+        keys.sort(key=str.lower)
+
+        params = params[keys]
         for row in params.itertuples():
             line = str(row[0]) + ': '
             names = row._fields[1:]
@@ -98,7 +105,6 @@ class FanovaFromCSV(Fanova):
             for idx_item, item in enumerate(data):
                 line = line + names[idx_item] + "='{}'".format(item) + ', '
             line = line[:-2]
-            print(line)
             line = line + '\n'
 
             fh.write(line)

@@ -1,0 +1,6 @@
+algo = .
+execdir = .
+overall_obj = MEAN
+run_obj = QUALITY
+paramfile = ./param.pcs
+instance_file = ./instances.txt

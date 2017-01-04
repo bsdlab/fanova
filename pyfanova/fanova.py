@@ -211,9 +211,10 @@ class Fanova(object):
     def _get_marginal_for_value(self, param, value):
 
         dim = self._convert_param2dim(param)
-
         self._remote.send_command(["get_marginal_for_value", str(dim), str(value)])
-        result = self._remote.receive().split(';')
+        result = self._remote.receive()
+        result = result.strip().split(';')
+
         return (float(result[0]), float(result[1]))
 
     def _get_marginal_for_value_pair(self, param1, param2, value1, value2):
@@ -313,7 +314,6 @@ class Fanova(object):
         if max_num is not None:
             sorted_performances = sorted_performances[:max_num]
         for marginal, label, name in sorted_performances:
-            print(label)
             return_values.append((marginal, name))
         return return_values
 
@@ -367,53 +367,53 @@ class Fanova(object):
             logging.error("Parameter not found")
             raise ValueError("Parameter not found")
 
-        
+
     def normalize_value(self,param_name,value):
-        
+
         """
-        Normalize values  to the range [0,1] w.r.t to the upper and lower 
+        Normalize values  to the range [0,1] w.r.t to the upper and lower
             bound of the paramter
-        
+
         input:
             param_name: the name of the parameter
             value: the value to normalize
-            
+
         returns:
             the normalized value
-            
+
         """
         self._remote.send_command(["unormalize_value", str(param_name), str(1)])
         upper_bound = float(self._remote.receive())
         self._remote.send_command(["unormalize_value", str(param_name), str(0)])
         lower_bound = float(self._remote.receive())
-        
+
         return (float(value)-lower_bound)/(upper_bound - lower_bound)
 
     def get_test_values_for_param(self, param_name):
         """
         Get the values for which a parameter was evaluated in the smac
         run.
-        
+
         input:
             param_name: the name of the parameter
-        
+
         returns:
             A list of values for which the parameter was evaluated
         """
-        
+
         result_parser = Resultparser(self._smac_output)
         run_configs = result_parser.parse_runConfigs()
-        
+
         values = []
-        for ii in range(0,len(run_configs)):   
+        for ii in range(0,len(run_configs)):
             run = run_configs[ii]
             if run[param_name] is None:
                 raise ValueError("Couldn't find parameter {0} in config!".format(param_name))
             else:
                 values.append(run[param_name])
-                
+
         return values
-        
+
     def _fanova_classpath(self):
         classpath = [fname for fname in os.listdir(self._fanova_lib_folder) if fname.endswith(".jar")]
         classpath = [os.path.join(self._fanova_lib_folder, fname) for fname in classpath]
@@ -425,10 +425,9 @@ class Fanova(object):
 
     def unormalize_value(self, parameter, value):
         assert value <= 1 and value >= 0
-
         self._remote.send_command(["unormalize_value", str(parameter), str(value)])
-        value = self._remote.receive()
-        if value != "\n":
+        value = self._remote.receive().strip()
+        if value:
 
             return float(value)
         else:
