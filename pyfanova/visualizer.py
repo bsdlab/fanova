@@ -186,21 +186,25 @@ class Visualizer(object):
             else:
                 print(ax)
                 ax1, ax2 = ax
-            n_colorbar = 10 #granularity of the colorbar
+            n_colorbar = 15 #granularity of the colorbar
 
             fig = plt.gcf()
             #ax = fig.gca(projection='3d')
 
             #ax = Axes3D(fig)
             plt.subplots_adjust(wspace = 0.4)
+            N_levels = 15
+            levels_perf = np.linspace(np.amin(zz),np.amax(zz),N_levels)
+            levels_std = np.linspace(np.amin(zz_standard_dev),np.amax(zz_standard_dev),N_levels)
             #surface = ax.plot_surface(display_xx, display_yy, zz, rstride=1, cstride=1, cmap=cm.jet, linewidth=0, antialiased=False, alpha = 0.5)
-
+            
             #cmap_custom = colors.LinearSegmentedColormap('my_map', cdict, N=256, gamma=1.0)
             if self.do_custom_scaling:
-                cont_mean = ax1.contourf(display_xx, display_yy, zz, rstride=1, cstride=1,cmap = cm.jet_r, linewidth=0, antialiased=False, alpha = 0.5,vmin= self.custom_scale[0], vmax=self.custom_scale[1])
+                cont_mean = ax1.contourf(display_xx, display_yy, zz, levels_perf, rstride=1, cstride=1,cmap = cm.jet_r, linewidth=0, antialiased=False, alpha = 0.5,vmin= self.custom_scale[0], vmax=self.custom_scale[1])
             else:
-                cont_mean = ax1.contourf(display_xx, display_yy, zz, rstride=1, cstride=1,cmap = cm.jet_r, linewidth=0, antialiased=False, alpha = 0.5)
-            cont_sd = ax2.contourf(display_xx, display_yy, zz_standard_dev, rstride=1, cstride=1,cmap = cm.autumn_r, linewidth=0, antialiased=False, alpha = 0.5)
+                cont_mean = ax1.contourf(display_xx, display_yy, zz, levels_perf, rstride=1, cstride=1,cmap = cm.jet_r, linewidth=0, antialiased=False, alpha = 0.5)
+            
+            cont_sd = ax2.contourf(display_xx, display_yy, zz_standard_dev, levels_std, rstride=1, cstride=1,cmap = cm.autumn_r, linewidth=0, antialiased=False, alpha = 0.5)
 
             ax1.set_xlabel(param_name_1)
             ax1.set_ylabel(param_name_2)
